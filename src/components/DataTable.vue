@@ -1,10 +1,11 @@
 <template>
   <div class="container">
     <div v-if="loading" class="loading-overlay">
+      <img src="../assets/zulpog.webp" alt="Carregando..." class="spinner" />
       <p class="loading-text">Carregando...</p>
       <img src="../assets/holyjoia.webp" alt="Carregando..." class="spinner" />
     </div>
-    
+
     <div v-else class="data-table">
       <table>
         <thead>
@@ -19,12 +20,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr 
-            v-for="(item, index) in sortedData" 
+          <tr
+            v-for="(item, index) in sortedData"
             :key="index"
             :class="{
               'highlight-green': index < 5,
-              'highlight-red': index >= sortedData.length - 5
+              'highlight-red': index >= sortedData.length - 5,
             }"
           >
             <td>{{ item.name }}</td>
@@ -58,9 +59,9 @@ const fetchData = async () => {
     const response = await fetch('https://api-node-csteam.onrender.com/', {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      mode: 'cors'
+      mode: 'cors',
     });
 
     if (!response.ok) {
@@ -68,7 +69,9 @@ const fetchData = async () => {
     }
 
     const fetchedData = await response.json();
-    data.value = fetchedData.sort((a, b) => b.itemLevel.average - a.itemLevel.average);
+    data.value = fetchedData.sort(
+      (a, b) => b.itemLevel.average - a.itemLevel.average
+    );
   } catch (error) {
     console.error('Erro ao buscar dados:', error);
   } finally {
@@ -97,7 +100,7 @@ onMounted(fetchData);
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.5); 
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
 
@@ -115,8 +118,12 @@ onMounted(fetchData);
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .data-table {
@@ -130,7 +137,8 @@ onMounted(fetchData);
   border-collapse: collapse;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: left;
@@ -169,7 +177,8 @@ onMounted(fetchData);
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
-  .data-table th, .data-table td {
+  .data-table th,
+  .data-table td {
     font-size: 14px;
     padding: 8px;
   }
@@ -185,7 +194,8 @@ onMounted(fetchData);
 }
 
 @media (max-width: 480px) {
-  .data-table th, .data-table td {
+  .data-table th,
+  .data-table td {
     font-size: 12px;
     padding: 6px;
   }
