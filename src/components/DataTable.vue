@@ -1,8 +1,6 @@
 <template>
   <div :class="{ 'dark-mode': isDarkMode }" class="container">
-    <button @click="toggleDarkMode" class="dark-mode-toggle">
-      {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
-    </button>
+
     
     <div v-if="loading" class="loading-overlay">
       <img src="../assets/zulpog.webp" alt="Carregando..." class="spinner" />
@@ -11,6 +9,9 @@
     </div>
 
     <div v-else class="data-table">
+      <button @click="toggleDarkMode" class="dark-mode-toggle">
+      {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+    </button>
       <table>
         <thead>
           <tr>
@@ -247,8 +248,8 @@ onMounted(fetchData);
 /* Botão de alternância */
 .dark-mode-toggle {
   position: absolute;
-  top: 20px;
-  left: -150px;
+  top: 5px;
+  left:  20px;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -311,6 +312,7 @@ onMounted(fetchData);
   border-collapse: collapse;
   background-color: #f9f9f9;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
 }
 
 .container {
