@@ -1,5 +1,9 @@
 <template>
-  <div class="container">
+  <div :class="{ 'dark-mode': isDarkMode }" class="container">
+    <button @click="toggleDarkMode" class="dark-mode-toggle">
+      {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+    </button>
+    
     <div v-if="loading" class="loading-overlay">
       <img src="../assets/zulpog.webp" alt="Carregando..." class="spinner" />
       <p class="loading-text">Carregando...</p>
@@ -11,12 +15,12 @@
         <thead>
           <tr>
             <th>Nome</th>
-            <!-- <th>Nível</th> -->
-            <!-- <th>Raça</th> -->
             <th>Classe</th>
             <th>Item Level Equipado / Item Level Médio</th>
             <th>Tier Set</th>
             <th>Itens Encantados</th> 
+            <th>Itens Embelezados</th>
+            <th>Sockets</th>
           </tr>
         </thead>
         <tbody>
@@ -29,8 +33,6 @@
             }"
           >
             <td><b>{{ item.name }}</b></td>
-            <!-- <td>{{ item.level }}</td> -->
-            <!-- <td>{{ item.race }}</td> -->
             <td :class="{
               'class-warrior': item.class === 'Warrior',
               'class-paladin': item.class === 'Paladin',
@@ -70,7 +72,7 @@
               <div v-if="item.enchantedItems.length">
                   <b>Total: {{ totalEnchantedItems(item.enchantedItems) }}/{{item.enchantedItems.length}}</b>
                 </div>
-              <button @click="toggleDetails(index)">
+              <button v-if="item.enchantedItems.length" @click="toggleDetails(index)">
                 {{ expandedIndex === index ? 'Esconder Itens Encantados' : 'Exibir Itens Encantados' }}
               </button>
               <div v-if="expandedIndex === index">
@@ -82,6 +84,55 @@
                       <span :class="enchantedItem.enchanted ? 'enchanted-yes' : 'enchanted-no'">
                         {{ enchantedItem.enchanted ? 'Sim' : 'Não' }}
                       </span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </td>
+
+            <td>
+              <div v-if="item.embellishedItems.length">
+                <b>Total: {{ item.embellishedItems.length }}</b>
+              </div>
+              <button v-if="item.embellishedItems.length" @click="toggleEmbellishedDetails(index)">
+                {{ expandedEmbellishedIndex === index ? 'Esconder Itens Embelezados' : 'Exibir Itens Embelezados' }}
+              </button>
+              <div v-if="expandedEmbellishedIndex === index">
+                <ul>
+                  <li v-for="(embellishedItem, embellishedIndex) in item.embellishedItems" :key="embellishedIndex">
+                    <div class="enchanted-item">
+                      <div v-if="embellishedItem.spells.length">
+                        <ul>
+                          <li v-for="(spell, spellIndex) in embellishedItem.spells" :key="spellIndex">
+                            <b><span>{{ slotNames[embellishedItem.slot] || embellishedItem.slot }} - {{ embellishedItem.level }}</span></b><br> {{ spell }}
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </td>
+            <td>
+              <div v-if="item.sockets.length">
+                <b>Total: {{ totalSockets(item.sockets) }}/{{ item.sockets.length }}</b>
+              </div>
+              <button v-if="item.sockets.length" @click="toggleSocketsDetails(index)">
+                {{ expandedSocketsIndex === index ? 'Esconder Sockets' : 'Exibir Sockets' }}
+              </button>
+              <div v-if="expandedSocketsIndex === index">
+                <ul>
+                  <li v-for="(socket, socketIndex) in item.sockets" :key="socketIndex">
+                    <div class="socket-item">
+                      <span>{{ slotNames[socket.slot] || socket.slot }}: </span>
+                      <span>{{ socket.level }}</span>
+                      <ul>
+                        <li v-for="(socketDetail, detailIndex) in socket.sockets" :key="detailIndex">
+                          <div class="socket-detail">
+                            <span>{{ socketDetail.type.name }} - {{ socketDetail.gem }}</span>
+                          </div>
+                        </li>
+                      </ul>
                     </div>
                   </li>
                 </ul>
@@ -112,13 +163,19 @@ const slotNames = {
   HEAD: 'Head',
   SHOULDERS: 'Shoulders',
   TRINKET_1: 'Trinket 1',
-  TRINKET_2: 'Trinket 2'
+  TRINKET_2: 'Trinket 2',
+  WAIST: 'Waist',
+  NECK: 'Neck'
 };
 
 const data = ref([]);
 const loading = ref(true);
 const expandedIndex = ref(null);
 const expandedTierIndex = ref(null);
+const expandedEmbellishedIndex = ref(null);
+const expandedSocketsIndex = ref(null);
+
+const isDarkMode = ref(false); 
 
 const fetchData = async () => {
   try {
@@ -135,7 +192,7 @@ const fetchData = async () => {
     }
 
     const fetchedData = await response.json();
-    // console.log(fetchedData);
+    console.log(fetchedData);
     data.value = fetchedData.sort(
       (a, b) => b.itemLevel.average - a.itemLevel.average
     );
@@ -156,6 +213,18 @@ const toggleTierDetails = (index) => {
   expandedTierIndex.value = expandedTierIndex.value === index ? null : index;
 };
 
+const toggleEmbellishedDetails = (index) => {
+  expandedEmbellishedIndex.value = expandedEmbellishedIndex.value === index ? null : index;
+};
+
+const totalSockets = (sockets) => {
+  return sockets.length;
+};
+
+const toggleSocketsDetails = (index) => {
+  expandedSocketsIndex.value = expandedSocketsIndex.value === index ? null : index;
+};
+
 const totalEnchantedItems = (items) => {
   let count = 0;
   items.forEach(element => {
@@ -167,16 +236,91 @@ const totalEnchantedItems = (items) => {
   return count;
 }
 
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value;
+};
+
 onMounted(fetchData);
 </script>
 
 <style scoped>
+/* Botão de alternância */
+.dark-mode-toggle {
+  position: absolute;
+  top: 20px;
+  left: -150px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.dark-mode-toggle:hover {
+  background-color: #45a049;
+}
+
+.dark-mode.container {
+  background-color: #121212;
+  color: #fff;
+}
+
+.dark-mode .data-table {
+  background-color: #1e1e1e;
+}
+
+.dark-mode .data-table th,
+.dark-mode .data-table td {
+  border: 1px solid #444;
+}
+
+.dark-mode .data-table th {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+.dark-mode .data-table tr:nth-child(even) {
+  background-color: #2c2c2c;
+}
+
+.dark-mode .data-table tr:hover {
+  background-color: #444;
+}
+
+.dark-mode .loading-overlay {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.dark-mode .loading-text {
+  color: #e0e0e0;
+}
+
+.dark-mode .data-table tr.highlight-green {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.dark-mode .data-table tr.highlight-red {
+  background-color:  #444;
+}
+
+/* Manter o restante dos estilos como estão */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 .container {
   margin: 0 auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
   max-width: 1200px;
   padding: 20px;
+  transition: background-color 0.3s, color 0.3s;
+  color: #000;
 }
 
 .loading-overlay {
@@ -276,6 +420,10 @@ onMounted(fetchData);
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.socket-detail {
+  font-style: italic;
 }
 
 /* Responsive Styles */
@@ -434,15 +582,5 @@ onMounted(fetchData);
      font-size: 18px;
 }
 
-.class-evoker {
-  color: #105e05; /* verde */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
-}
 
 </style>
