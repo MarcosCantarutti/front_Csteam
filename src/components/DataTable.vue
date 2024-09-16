@@ -582,5 +582,16 @@ onMounted(fetchData);
      font-size: 18px;
 }
 
+.class-evoker {
+  color: #015c2a;
+  text-shadow: 
+    -1px -1px 2px #000,  
+     1px -1px 2px #000,
+    -1px  1px 2px #000,
+     1px  1px 2px #000;
+     font-weight: bold;
+     font-size: 18px;
+}
+
 
 </style>
