@@ -1,17 +1,23 @@
 <template>
   <div :class="{ 'dark-mode': isDarkMode }" class="container">
-
-    
     <div v-if="loading" class="loading-overlay">
       <img src="../assets/zulpog.webp" alt="Carregando..." class="spinner" />
-      <p class="loading-text">Carregando...</p>
+      <p class="loading-text">Atualizando dados...</p>
       <img src="../assets/holyjoia.webp" alt="Carregando..." class="spinner" />
     </div>
 
     <div v-else class="data-table">
       <button @click="toggleDarkMode" class="dark-mode-toggle">
-      {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
-    </button>
+        {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
+      </button>
+      <button
+        @click="refreshData"
+        :disabled="isRefreshing"
+        class="refresh-button"
+      >
+        Refresh
+      </button>
+      <span class="response-text">{{ responseText }}</span>
       <table>
         <thead>
           <tr>
@@ -19,7 +25,7 @@
             <th>Classe</th>
             <th>Item Level Equipado / Item Level Médio</th>
             <th>Tier Set</th>
-            <th>Itens Encantados</th> 
+            <th>Itens Encantados</th>
             <th>Itens Embelezados</th>
             <th>Sockets</th>
           </tr>
@@ -33,37 +39,55 @@
               'highlight-red': index >= sortedData.length - 5,
             }"
           >
-            <td><b>{{ item.name }}</b></td>
-            <td :class="{
-              'class-warrior': item.class === 'Warrior',
-              'class-paladin': item.class === 'Paladin',
-              'class-hunter': item.class === 'Hunter',
-              'class-rogue': item.class === 'Rogue',
-              'class-priest': item.class === 'Priest',
-              'class-deathknight': item.class === 'Death Knight',
-              'class-shaman': item.class === 'Shaman',
-              'class-mage': item.class === 'Mage',
-              'class-warlock': item.class === 'Warlock',
-              'class-monk': item.class === 'Monk',
-              'class-druid': item.class === 'Druid',
-              'class-demonhunter': item.class === 'Demon Hunter',
-              'class-evoker': item.class === 'Evoker'
-            }"
-            >{{ item.class }}</td>
-            <td><b>{{ item.itemLevel.equipped }} / {{ item.itemLevel.average }}</b></td>
+            <td>
+              <b>{{ item.name }}</b>
+            </td>
+            <td
+              :class="{
+                'class-warrior': item.class === 'Warrior',
+                'class-paladin': item.class === 'Paladin',
+                'class-hunter': item.class === 'Hunter',
+                'class-rogue': item.class === 'Rogue',
+                'class-priest': item.class === 'Priest',
+                'class-deathknight': item.class === 'Death Knight',
+                'class-shaman': item.class === 'Shaman',
+                'class-mage': item.class === 'Mage',
+                'class-warlock': item.class === 'Warlock',
+                'class-monk': item.class === 'Monk',
+                'class-druid': item.class === 'Druid',
+                'class-demonhunter': item.class === 'Demon Hunter',
+                'class-evoker': item.class === 'Evoker',
+              }"
+            >
+              {{ item.class }}
+            </td>
+            <td>
+              <b
+                >{{ item.itemLevel.equipped }} / {{ item.itemLevel.average }}</b
+              >
+            </td>
             <td>
               <div v-if="item.tierSet.length">
-                  <b>Tier {{ item.tierSet.length }}/5</b>
+                <b>Tier {{ item.tierSet.length }}/5</b>
               </div>
-              <button v-if="item.tierSet.length" @click="toggleTierDetails(index)">
-                {{ expandedTierIndex === index ? 'Esconder Tier Set' : 'Exibir Tier Set' }}
+              <button
+                v-if="item.tierSet.length"
+                @click="toggleTierDetails(index)"
+              >
+                {{
+                  expandedTierIndex === index
+                    ? 'Esconder Tier Set'
+                    : 'Exibir Tier Set'
+                }}
               </button>
               <div v-if="expandedTierIndex === index">
-                
                 <ul>
                   <li v-for="(tier, index) in item.tierSet" :key="index">
                     <div class="enchanted-item">
-                      <span>{{ slotNames[tier.slot] || tier.slot }}: {{ tier.level }}</span>
+                      <span
+                        >{{ slotNames[tier.slot] || tier.slot }}:
+                        {{ tier.level }}</span
+                      >
                     </div>
                   </li>
                 </ul>
@@ -71,18 +95,41 @@
             </td>
             <td>
               <div v-if="item.enchantedItems.length">
-                  <b>Total: {{ totalEnchantedItems(item.enchantedItems) }}/{{item.enchantedItems.length}}</b>
-                </div>
-              <button v-if="item.enchantedItems.length" @click="toggleDetails(index)">
-                {{ expandedIndex === index ? 'Esconder Itens Encantados' : 'Exibir Itens Encantados' }}
+                <b
+                  >Total: {{ totalEnchantedItems(item.enchantedItems) }}/{{
+                    item.enchantedItems.length
+                  }}</b
+                >
+              </div>
+              <button
+                v-if="item.enchantedItems.length"
+                @click="toggleDetails(index)"
+              >
+                {{
+                  expandedIndex === index
+                    ? 'Esconder Itens Encantados'
+                    : 'Exibir Itens Encantados'
+                }}
               </button>
               <div v-if="expandedIndex === index">
-              
                 <ul>
-                  <li v-for="(enchantedItem, index) in item.enchantedItems" :key="index">
+                  <li
+                    v-for="(enchantedItem, index) in item.enchantedItems"
+                    :key="index"
+                  >
                     <div class="enchanted-item">
-                      <span>{{ slotNames[enchantedItem.slot] || enchantedItem.slot }}: </span>
-                      <span :class="enchantedItem.enchanted ? 'enchanted-yes' : 'enchanted-no'">
+                      <span
+                        >{{
+                          slotNames[enchantedItem.slot] || enchantedItem.slot
+                        }}:
+                      </span>
+                      <span
+                        :class="
+                          enchantedItem.enchanted
+                            ? 'enchanted-yes'
+                            : 'enchanted-no'
+                        "
+                      >
                         {{ enchantedItem.enchanted ? 'Sim' : 'Não' }}
                       </span>
                     </div>
@@ -95,17 +142,43 @@
               <div v-if="item.embellishedItems.length">
                 <b>Total: {{ item.embellishedItems.length }}</b>
               </div>
-              <button v-if="item.embellishedItems.length" @click="toggleEmbellishedDetails(index)">
-                {{ expandedEmbellishedIndex === index ? 'Esconder Itens Embelezados' : 'Exibir Itens Embelezados' }}
+              <button
+                v-if="item.embellishedItems.length"
+                @click="toggleEmbellishedDetails(index)"
+              >
+                {{
+                  expandedEmbellishedIndex === index
+                    ? 'Esconder Itens Embelezados'
+                    : 'Exibir Itens Embelezados'
+                }}
               </button>
               <div v-if="expandedEmbellishedIndex === index">
                 <ul>
-                  <li v-for="(embellishedItem, embellishedIndex) in item.embellishedItems" :key="embellishedIndex">
+                  <li
+                    v-for="(
+                      embellishedItem, embellishedIndex
+                    ) in item.embellishedItems"
+                    :key="embellishedIndex"
+                  >
                     <div class="enchanted-item">
                       <div v-if="embellishedItem.spells.length">
                         <ul>
-                          <li v-for="(spell, spellIndex) in embellishedItem.spells" :key="spellIndex">
-                            <b><span>{{ slotNames[embellishedItem.slot] || embellishedItem.slot }} - {{ embellishedItem.level }}</span></b><br> {{ spell }}
+                          <li
+                            v-for="(
+                              spell, spellIndex
+                            ) in embellishedItem.spells"
+                            :key="spellIndex"
+                          >
+                            <b
+                              ><span
+                                >{{
+                                  slotNames[embellishedItem.slot] ||
+                                  embellishedItem.slot
+                                }}
+                                - {{ embellishedItem.level }}</span
+                              ></b
+                            ><br />
+                            {{ spell }}
                           </li>
                         </ul>
                       </div>
@@ -116,21 +189,41 @@
             </td>
             <td>
               <div v-if="item.sockets.length">
-                <b>Total: {{ totalSockets(item.sockets) }}/{{ item.sockets.length }}</b>
+                <b
+                  >Total: {{ totalSockets(item.sockets) }}/{{
+                    item.sockets.length
+                  }}</b
+                >
               </div>
-              <button v-if="item.sockets.length" @click="toggleSocketsDetails(index)">
-                {{ expandedSocketsIndex === index ? 'Esconder Sockets' : 'Exibir Sockets' }}
+              <button
+                v-if="item.sockets.length"
+                @click="toggleSocketsDetails(index)"
+              >
+                {{
+                  expandedSocketsIndex === index
+                    ? 'Esconder Sockets'
+                    : 'Exibir Sockets'
+                }}
               </button>
               <div v-if="expandedSocketsIndex === index">
                 <ul>
-                  <li v-for="(socket, socketIndex) in item.sockets" :key="socketIndex">
+                  <li
+                    v-for="(socket, socketIndex) in item.sockets"
+                    :key="socketIndex"
+                  >
                     <div class="socket-item">
                       <span>{{ slotNames[socket.slot] || socket.slot }}: </span>
                       <span>{{ socket.level }}</span>
                       <ul>
-                        <li v-for="(socketDetail, detailIndex) in socket.sockets" :key="detailIndex">
+                        <li
+                          v-for="(socketDetail, detailIndex) in socket.sockets"
+                          :key="detailIndex"
+                        >
                           <div class="socket-detail">
-                            <span>{{ socketDetail.type.name }} - {{ socketDetail.gem }}</span>
+                            <span
+                              >{{ socketDetail.type.name }} -
+                              {{ socketDetail.gem }}</span
+                            >
                           </div>
                         </li>
                       </ul>
@@ -166,7 +259,7 @@ const slotNames = {
   TRINKET_1: 'Trinket 1',
   TRINKET_2: 'Trinket 2',
   WAIST: 'Waist',
-  NECK: 'Neck'
+  NECK: 'Neck',
 };
 
 const data = ref([]);
@@ -175,12 +268,16 @@ const expandedIndex = ref(null);
 const expandedTierIndex = ref(null);
 const expandedEmbellishedIndex = ref(null);
 const expandedSocketsIndex = ref(null);
+const responseText = ref('');
 
-const isDarkMode = ref(false); 
+const isDarkMode = ref(false);
+const isRefreshing = ref(false); // Novo estado para gerenciar o botão de refresh
 
 const fetchData = async () => {
   try {
-    const response = await fetch('https://api-node-csteam.onrender.com/', {
+    // https://api-node-csteam.onrender.com/dados
+    // http://localhost:3000/dados
+    const response = await fetch('https://api-node-csteam.onrender.com/dados', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -204,6 +301,39 @@ const fetchData = async () => {
   }
 };
 
+const refreshData = async () => {
+  if (confirm('Deseja atualizar os dados da planilha?')) {
+    isRefreshing.value = true; // Desabilita o botão de refresh
+    loading.value = true; // Exibe a tela de carregamento
+
+    try {
+      // https://api-node-csteam.onrender.com/
+      // http://localhost:3000/
+      const response = await fetch('https://api-node-csteam.onrender.com/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const fetchedData = await response.json();
+      responseText.value = `${fetchedData.message} - ${formatarHoraAtual()}`;
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    } finally {
+      loading.value = false;
+      isRefreshing.value = false;
+
+      fetchData();
+    }
+  }
+};
+
 const sortedData = computed(() => data.value);
 
 const toggleDetails = (index) => {
@@ -215,7 +345,8 @@ const toggleTierDetails = (index) => {
 };
 
 const toggleEmbellishedDetails = (index) => {
-  expandedEmbellishedIndex.value = expandedEmbellishedIndex.value === index ? null : index;
+  expandedEmbellishedIndex.value =
+    expandedEmbellishedIndex.value === index ? null : index;
 };
 
 const totalSockets = (sockets) => {
@@ -223,22 +354,37 @@ const totalSockets = (sockets) => {
 };
 
 const toggleSocketsDetails = (index) => {
-  expandedSocketsIndex.value = expandedSocketsIndex.value === index ? null : index;
+  expandedSocketsIndex.value =
+    expandedSocketsIndex.value === index ? null : index;
 };
 
 const totalEnchantedItems = (items) => {
   let count = 0;
-  items.forEach(element => {
-    if(element.enchanted){
-      count++
+  items.forEach((element) => {
+    if (element.enchanted) {
+      count++;
     }
   });
 
   return count;
-}
+};
 
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
+};
+
+const formatarHoraAtual = () => {
+  const agora = new Date();
+
+  // Formatar a data e a hora
+  const formato = new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false, // Definido como false para usar o formato de 24 horas
+  });
+
+  return formato.format(agora);
 };
 
 onMounted(fetchData);
@@ -249,11 +395,11 @@ onMounted(fetchData);
 .dark-mode-toggle {
   position: absolute;
   top: 5px;
-  left:  20px;
+  left: 20px;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: #fff;
   cursor: pointer;
   font-size: 16px;
@@ -303,7 +449,7 @@ onMounted(fetchData);
 }
 
 .dark-mode .data-table tr.highlight-red {
-  background-color:  #444;
+  background-color: #444;
 }
 
 /* Manter o restante dos estilos como estão */
@@ -353,8 +499,12 @@ onMounted(fetchData);
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .data-table {
@@ -376,7 +526,7 @@ onMounted(fetchData);
 }
 
 .data-table th {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: #fff;
   font-weight: bold;
   padding: 2px;
@@ -399,12 +549,12 @@ onMounted(fetchData);
 }
 
 .enchanted-yes {
-  color: #228B22;
+  color: #228b22;
   font-weight: bold;
 }
 
 .enchanted-no {
-  color: #FF2800;
+  color: #ff2800;
   font-weight: bold;
 }
 
@@ -464,136 +614,122 @@ onMounted(fetchData);
 }
 
 .class-warrior {
-  color: #C79C6E; /* Marrom */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #c79c6e; /* Marrom */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-paladin {
-  color: #F58CBA; /* Rosa */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #f58cba; /* Rosa */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-hunter {
-  color: #ABD473; /* Verde */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #abd473; /* Verde */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-rogue {
-  color: #FFF569; /* Amarelo */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #fff569; /* Amarelo */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-priest {
-  color: #FFFFFF; /* Branco */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #ffffff; /* Branco */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-deathknight {
-  color: #C41F3B; /* Vermelho */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #c41f3b; /* Vermelho */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-shaman {
-  color: #0070DE; /* Azul */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #0070de; /* Azul */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-mage {
-  color: #69CCF0; /* Azul claro */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #69ccf0; /* Azul claro */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-warlock {
-  color: #9482C9; /* Roxo */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #9482c9; /* Roxo */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-monk {
-  color: #00FF96; /* Verde neon */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #00ff96; /* Verde neon */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-druid {
-  color: #FF7D0A; /* Laranja */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #ff7d0a; /* Laranja */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 .class-demonhunter {
-  color: #A330C9; /* Roxo escuro */
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  color: #a330c9; /* Roxo escuro */
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 .class-evoker {
   color: #015c2a;
-  text-shadow: 
-    -1px -1px 2px #000,  
-     1px -1px 2px #000,
-    -1px  1px 2px #000,
-     1px  1px 2px #000;
-     font-weight: bold;
-     font-size: 18px;
+  text-shadow: -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000,
+    1px 1px 2px #000;
+  font-weight: bold;
+  font-size: 18px;
 }
 
+.refresh-button {
+  position: absolute;
+  top: 5px;
+  left: 150px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #ff9800;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+}
 
+.refresh-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.response-text {
+  position: absolute;
+  top: 4px;
+  left: 270px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #0070de;
+}
 </style>
