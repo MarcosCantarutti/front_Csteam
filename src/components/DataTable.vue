@@ -271,7 +271,7 @@ const expandedSocketsIndex = ref(null);
 const responseText = ref('');
 
 const isDarkMode = ref(false);
-const isRefreshing = ref(false); // Novo estado para gerenciar o botão de refresh
+const isRefreshing = ref(false); 
 
 // totais
 const totalPlayers = ref(0);
@@ -281,6 +281,17 @@ const itensEnchant = ref(0);
 const totalItensEnchant = ref(0);
 const itensEmbelish = ref(0);
 const totalItensEmbelish = ref(0);
+
+const loadDarkModePreference = () => {
+  const darkMode = localStorage.getItem('darkMode');
+  if (darkMode) {
+    isDarkMode.value = JSON.parse(darkMode);
+  }
+};
+
+const saveDarkModePreference = () => {
+  localStorage.setItem('darkMode', JSON.stringify(isDarkMode.value));
+};
 
 const fetchData = async () => {
   try {
@@ -380,6 +391,7 @@ const totalEnchantedItems = (items) => {
 
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value;
+  saveDarkModePreference();
 };
 
 const formatarHoraAtual = () => {
@@ -431,6 +443,7 @@ const calcItensEmbelish = () => {
 };
 
 onMounted(async () => {
+  loadDarkModePreference();
   await fetchData();
   calcMediaEquip();
   calcItensEnchant();
@@ -657,7 +670,7 @@ onMounted(async () => {
   table{
     zoom: 0.75;
   }
-  
+
   .data-table th,
   .data-table td {
     font-size: 10px;
