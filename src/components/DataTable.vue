@@ -21,12 +21,12 @@
       <table>
         <thead>
           <tr>
-            <th>Nome</th>
+            <th>Nome  ({{totalPlayers}})</th>
             <th>Classe</th>
-            <th>Item Level Equipado / Item Level Médio</th>
-            <th>Tier Set</th>
-            <th>Itens Encantados</th>
-            <th>Itens Embelezados</th>
+            <th>Item lvl Equip. / Médio  ({{mediaEquip}}/{{ mediaAvg }})</th>
+            <th>Tier Set </th>
+            <th>Itens Encantados  ({{itensEnchant}}/{{ totalItensEnchant }})</th>
+            <th>Itens Embelezados ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
             <th>Sockets</th>
           </tr>
         </thead>
@@ -63,7 +63,7 @@
             </td>
             <td>
               <b
-                >{{ item.itemLevel.equipped }} / {{ item.itemLevel.average }}</b
+                >{{ item.itemLevel.equipped }} / {{ item.itemLevel.average }} </b
               >
             </td>
             <td>
@@ -76,8 +76,8 @@
               >
                 {{
                   expandedTierIndex === index
-                    ? 'Esconder Tier Set'
-                    : 'Exibir Tier Set'
+                    ? 'Ocultar'
+                    : 'Exibir'
                 }}
               </button>
               <div v-if="expandedTierIndex === index">
@@ -107,8 +107,8 @@
               >
                 {{
                   expandedIndex === index
-                    ? 'Esconder Itens Encantados'
-                    : 'Exibir Itens Encantados'
+                    ? 'Ocultar'
+                    : 'Exibir'
                 }}
               </button>
               <div v-if="expandedIndex === index">
@@ -148,8 +148,8 @@
               >
                 {{
                   expandedEmbellishedIndex === index
-                    ? 'Esconder Itens Embelezados'
-                    : 'Exibir Itens Embelezados'
+                    ? 'Ocultar'
+                    : 'Exibir'
                 }}
               </button>
               <div v-if="expandedEmbellishedIndex === index">
@@ -201,8 +201,8 @@
               >
                 {{
                   expandedSocketsIndex === index
-                    ? 'Esconder Sockets'
-                    : 'Exibir Sockets'
+                    ? 'Ocultar'
+                    : 'Exibir'
                 }}
               </button>
               <div v-if="expandedSocketsIndex === index">
@@ -273,6 +273,15 @@ const responseText = ref('');
 const isDarkMode = ref(false);
 const isRefreshing = ref(false); // Novo estado para gerenciar o botão de refresh
 
+// totais
+const totalPlayers = ref(0);
+const mediaEquip = ref(0);
+const mediaAvg = ref(0);
+const itensEnchant = ref(0);
+const totalItensEnchant = ref(0);
+const itensEmbelish = ref(0);
+const totalItensEmbelish = ref(0);
+
 const fetchData = async () => {
   try {
     // https://api-node-csteam.onrender.com/dados
@@ -290,10 +299,10 @@ const fetchData = async () => {
     }
 
     const fetchedData = await response.json();
-    console.log(fetchedData);
     data.value = fetchedData.sort(
       (a, b) => b.itemLevel.average - a.itemLevel.average
     );
+    totalPlayers.value = data.value.length
   } catch (error) {
     console.error('Erro ao buscar dados:', error);
   } finally {
@@ -387,7 +396,46 @@ const formatarHoraAtual = () => {
   return formato.format(agora);
 };
 
-onMounted(fetchData);
+const calcMediaEquip = () => {
+  const totalEquip = data.value.reduce((sum, player) => sum + player.itemLevel.equipped, 0);
+  const totalAvg = data.value.reduce((sum, player) => sum + player.itemLevel.average, 0);
+
+  // Calcula as médias
+  mediaEquip.value = (totalEquip / data.value.length).toFixed(2);
+  mediaAvg.value = (totalAvg / data.value.length).toFixed(2);
+};
+
+const calcItensEnchant = () => {
+  let totalEncantados = 0;
+  let totalItens = 0;
+
+  data.value.forEach(player => {
+    totalEncantados += player.enchantedItems.filter(item => item.enchanted).length;
+    totalItens += player.enchantedItems.length;
+  });
+
+  itensEnchant.value = totalEncantados;
+  totalItensEnchant.value = totalItens;
+};
+
+const calcItensEmbelish = () => {
+  let totalEmbelezados = 0;
+  let totalItens = totalPlayers.value * 2;
+
+  data.value.forEach(player => {
+    totalEmbelezados += player.embellishedItems.length;
+  });
+
+  itensEmbelish.value = totalEmbelezados;
+  totalItensEmbelish.value = totalItens;
+};
+
+onMounted(async () => {
+  await fetchData();
+  calcMediaEquip();
+  calcItensEnchant();
+  calcItensEmbelish();
+});
 </script>
 
 <style scoped>
@@ -410,7 +458,7 @@ onMounted(fetchData);
 }
 
 .dark-mode.container {
-  background-color: #121212;
+  /* background-color: #121212; */
   color: #fff;
 }
 
@@ -580,9 +628,13 @@ onMounted(fetchData);
 
 /* Responsive Styles */
 @media (max-width: 768px) {
+
+  table{
+    zoom: 0.85;
+  }
   .data-table th,
   .data-table td {
-    font-size: 14px;
+    font-size: 12px;
     padding: 8px;
   }
 
@@ -594,13 +646,17 @@ onMounted(fetchData);
     width: 40px;
     height: 40px;
   }
+
+  .response-text {
+    font-size: 10px;
+  }
 }
 
 @media (max-width: 480px) {
   .data-table th,
   .data-table td {
-    font-size: 12px;
-    padding: 6px;
+    font-size: 11px;
+    padding: 2px;
   }
 
   .loading-text {
