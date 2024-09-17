@@ -630,7 +630,7 @@ onMounted(async () => {
 @media (max-width: 768px) {
 
   table{
-    zoom: 0.85;
+    zoom: 0.80;
   }
   .data-table th,
   .data-table td {
@@ -653,10 +653,15 @@ onMounted(async () => {
 }
 
 @media (max-width: 480px) {
+
+  table{
+    zoom: 0.75;
+  }
+  
   .data-table th,
   .data-table td {
-    font-size: 11px;
-    padding: 2px;
+    font-size: 10px;
+    padding: 1px;
   }
 
   .loading-text {
