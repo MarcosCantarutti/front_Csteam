@@ -10,7 +10,10 @@ import DataTable from './components/DataTable.vue';
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  text-align: center;
+  font-family: "Montserrat", sans-serif;
+}
+
+*, :after, :before {
+    box-sizing: border-box;
 }
 </style>

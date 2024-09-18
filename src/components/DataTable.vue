@@ -25,10 +25,10 @@
             <th>Class</th>
             <th>Item lvl Equip/Avg  ({{mediaEquip}}/{{ mediaAvg }})</th>
             <th>Tier Set </th>
-            <th>Enchants({{itensEnchant}}/{{ totalItensEnchant }})</th>
-            <th>Embellishment ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
+            <th>Enchants ({{itensEnchant}}/{{ totalItensEnchant }})</th>
+            <th>Embellish. ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
             <th>Sockets</th>
-            <th>Mythic +</th>
+            <th>Mythic+</th>
             <th>Raid</th>
           </tr>
         </thead>
@@ -73,6 +73,7 @@
                 <b>Tier {{ item.tierSet.length }}/5</b>
               </div>
               <button
+              class="btn"
                 v-if="item.tierSet.length"
                 @click="toggleTierDetails(index)"
               >
@@ -104,6 +105,7 @@
                 >
               </div>
               <button
+              class="btn"
                 v-if="item.enchantedItems.length"
                 @click="toggleDetails(index)"
               >
@@ -148,6 +150,7 @@
                 <b>Total: 0</b>
               </div>
               <button
+              class="btn"
                 v-if="item.embellishedItems.length"
                 @click="toggleEmbellishedDetails(index)"
               >
@@ -204,6 +207,7 @@
                 <b>Total: 0</b>
               </div>
               <button
+              class="btn"
                 v-if="item.sockets.length"
                 @click="toggleSocketsDetails(index)"
               >
@@ -492,6 +496,16 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+
+.btn{
+  padding: 1px;
+  cursor: pointer;
+}
+
+table{
+  border-spacing: 0;
+  cursor: pointer;
+}
 /* Botão de alternância */
 .dark-mode-toggle {
   position: absolute;
@@ -522,6 +536,7 @@ onMounted(async () => {
 .dark-mode .data-table th,
 .dark-mode .data-table td {
   border: 1px solid #444;
+  padding: 2px;
 }
 
 .dark-mode .data-table th {
@@ -564,7 +579,6 @@ onMounted(async () => {
 
 .container {
   margin: 0 auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
   max-width: 1200px;
   padding: 20px;
@@ -613,6 +627,7 @@ onMounted(async () => {
   border-collapse: collapse;
   background-color: #f9f9f9;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  
 }
 
 .data-table table {
@@ -624,6 +639,7 @@ onMounted(async () => {
   border: 1px solid #ddd;
   text-align: left;
   transition: background-color 0.3s;
+  font-size: 15px;
 }
 
 .data-table th {
@@ -686,54 +702,6 @@ onMounted(async () => {
   font-size: 22px;
   font-weight: bold;
   color: #0070de;
-}
-
-/* Responsive Styles */
-@media (max-width: 835px) {
-
-  table{
-    zoom: 0.75;
-  }
-  .data-table th,
-  .data-table td {
-    font-size: 12px;
-    padding: 8px;
-  }
-
-  .loading-text {
-    font-size: 14px;
-  }
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-  }
-
-  .response-text {
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 599px) {
-
-  table{
-    zoom: 0.72;
-  }
-
-  .data-table th,
-  .data-table td {
-    font-size: 10px;
-    padding: 1px;
-  }
-
-  .loading-text {
-    font-size: 12px;
-  }
-
-  .spinner {
-    width: 30px;
-    height: 30px;
-  }
 }
 
 .class-warrior {
@@ -846,6 +814,68 @@ onMounted(async () => {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+
+/* Responsive Styles */
+@media (max-width: 835px) {
+
+  .container{
+    padding: 20px 0;
+  }
+
+  table{
+    zoom: 0.75;
+  }
+  .data-table th,
+  .data-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .loading-text {
+    font-size: 14px;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+  }
+
+  .response-text {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 599px) {
+
+  .dark-mode-toggle {
+    font-size: 12px;
+  }
+
+  .refresh-button {
+    font-size: 12px;
+  }
+
+  table{
+    zoom: 0.75;
+  }
+
+  .data-table th,
+  .data-table td {
+    font-size: 10px;
+    padding: 1px;
+  }
+
+  .loading-text {
+    font-size: 12px;
+  }
+
+  .spinner {
+    width: 30px;
+    height: 30px;
+  }
+}
+
 
 
 </style>
