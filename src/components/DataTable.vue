@@ -23,12 +23,13 @@
           <tr>
             <th>Name  ({{totalPlayers}})</th>
             <th>Class</th>
-            <th>Item lvl Equip. / Avg  ({{mediaEquip}}/{{ mediaAvg }})</th>
+            <th>Item lvl Equip/Avg  ({{mediaEquip}}/{{ mediaAvg }})</th>
             <th>Tier Set </th>
             <th>Itens enchanted ({{itensEnchant}}/{{ totalItensEnchant }})</th>
             <th>Itens embelish ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
             <th>Sockets</th>
-            <th>M+ Dungeons</th>
+            <th>M+ Dungs.</th>
+            <th>Raid</th>
           </tr>
         </thead>
         <tbody>
@@ -253,6 +254,22 @@
                 <b>Score: 0</b>
               </div>
             </td>
+            <td>
+              <div v-if="item.raidProgress">
+                <ul>
+                        <li
+                          v-for="(item, index) in item.raidProgress"
+                          :key="index"
+                        >
+                          <div class="socket-detail">
+                            <span
+                              >{{ item.summary}}</span
+                            >
+                          </div>
+                        </li>
+                      </ul>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -334,7 +351,7 @@ const fetchData = async () => {
     }
 
     const fetchedData = await response.json();
-    // console.log(fetchedData)
+    console.log(fetchedData)
     data.value = fetchedData.sort(
       (a, b) => b.itemLevel.average - a.itemLevel.average
     );
@@ -368,7 +385,7 @@ const refreshData = async () => {
 
       const fetchedData = await response.json();
       textLoading.value = 'Buscando itens bi do bi...';
-      // console.log(fetchData)
+      console.log(fetchData)
       responseText.value = `${fetchedData.message} - ${formatarHoraAtual()}`;
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
