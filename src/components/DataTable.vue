@@ -2,7 +2,7 @@
   <div :class="{ 'dark-mode': isDarkMode }" class="container">
     <div v-if="loading" class="loading-overlay">
       <img src="../assets/zulpog.webp" alt="Carregando..." class="spinner" />
-      <p class="loading-text">Atualizando dados...</p>
+      <p class="loading-text">{{ textLoading }}</p>
       <img src="../assets/holyjoia.webp" alt="Carregando..." class="spinner" />
     </div>
 
@@ -303,6 +303,8 @@ const totalItensEnchant = ref(0);
 const itensEmbelish = ref(0);
 const totalItensEmbelish = ref(0);
 
+const textLoading = ref('Atualizando dados...');
+
 const loadDarkModePreference = () => {
   const darkMode = localStorage.getItem('darkMode');
   if (darkMode) {
@@ -315,6 +317,7 @@ const saveDarkModePreference = () => {
 };
 
 const fetchData = async () => {
+  loading.value = true; 
   try {
     // https://api-node-csteam.onrender.com/dados
     // http://localhost:3000/dados
@@ -364,6 +367,7 @@ const refreshData = async () => {
       }
 
       const fetchedData = await response.json();
+      textLoading.value = 'Buscando itens bi do bi...';
       // console.log(fetchData)
       responseText.value = `${fetchedData.message} - ${formatarHoraAtual()}`;
     } catch (error) {
