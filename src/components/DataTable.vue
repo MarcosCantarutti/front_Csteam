@@ -25,10 +25,10 @@
             <th>Class</th>
             <th>Item lvl Equip/Avg  ({{mediaEquip}}/{{ mediaAvg }})</th>
             <th>Tier Set </th>
-            <th>Itens enchanted ({{itensEnchant}}/{{ totalItensEnchant }})</th>
-            <th>Itens embelish ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
+            <th>Enchants({{itensEnchant}}/{{ totalItensEnchant }})</th>
+            <th>Embellishment ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
             <th>Sockets</th>
-            <th>M+ Dungs.</th>
+            <th>Mythic +</th>
             <th>Raid</th>
           </tr>
         </thead>
@@ -261,11 +261,7 @@
                           v-for="(item, index) in item.raidProgress"
                           :key="index"
                         >
-                          <div class="socket-detail">
-                            <span
-                              >{{ item.summary}}</span
-                            >
-                          </div>
+                            <b>{{ item.summary}}</b>
                         </li>
                       </ul>
               </div>
@@ -693,10 +689,10 @@ onMounted(async () => {
 }
 
 /* Responsive Styles */
-@media (max-width: 768px) {
+@media (max-width: 835px) {
 
   table{
-    zoom: 0.80;
+    zoom: 0.75;
   }
   .data-table th,
   .data-table td {
@@ -718,10 +714,10 @@ onMounted(async () => {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 599px) {
 
   table{
-    zoom: 0.75;
+    zoom: 0.72;
   }
 
   .data-table th,
