@@ -143,6 +143,9 @@
               <div v-if="item.embellishedItems.length">
                 <b>Total: {{ item.embellishedItems.length }}</b>
               </div>
+              <div v-else>
+                <b>Total: 0</b>
+              </div>
               <button
                 v-if="item.embellishedItems.length"
                 @click="toggleEmbellishedDetails(index)"
@@ -196,6 +199,9 @@
                   }}</b
                 >
               </div>
+              <div v-else>
+                <b>Total: 0</b>
+              </div>
               <button
                 v-if="item.sockets.length"
                 @click="toggleSocketsDetails(index)"
@@ -237,8 +243,14 @@
               <div v-if="item.mythicDungeons.length">
                 <b>This week: {{ item.mythicDungeons.length }}</b>
               </div>
+              <div v-else>
+                <b>This week: 0</b>
+              </div>
               <div v-if="item.mythicPlusRating.length">
                 <b>Score: {{ Math.round(item.mythicPlusRating[0])  }}</b>
+              </div>
+              <div v-else>
+                <b>Score: 0</b>
               </div>
             </td>
           </tr>
