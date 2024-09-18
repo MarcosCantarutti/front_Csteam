@@ -21,13 +21,14 @@
       <table>
         <thead>
           <tr>
-            <th>Nome  ({{totalPlayers}})</th>
-            <th>Classe</th>
-            <th>Item lvl Equip. / Médio  ({{mediaEquip}}/{{ mediaAvg }})</th>
+            <th>Name  ({{totalPlayers}})</th>
+            <th>Class</th>
+            <th>Item lvl Equip. / Avg  ({{mediaEquip}}/{{ mediaAvg }})</th>
             <th>Tier Set </th>
-            <th>Itens Encantados  ({{itensEnchant}}/{{ totalItensEnchant }})</th>
-            <th>Itens Embelezados ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
+            <th>Itens enchanted ({{itensEnchant}}/{{ totalItensEnchant }})</th>
+            <th>Itens embelish ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
             <th>Sockets</th>
+            <th>M+ Dungeons</th>
           </tr>
         </thead>
         <tbody>
@@ -232,6 +233,14 @@
                 </ul>
               </div>
             </td>
+            <td>
+              <div v-if="item.mythicDungeons.length">
+                <b>This week: {{ item.mythicDungeons.length }}</b>
+              </div>
+              <div v-if="item.mythicPlusRating.length">
+                <b>Score: {{ Math.round(item.mythicPlusRating[0])  }}</b>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -310,6 +319,7 @@ const fetchData = async () => {
     }
 
     const fetchedData = await response.json();
+    // console.log(fetchedData)
     data.value = fetchedData.sort(
       (a, b) => b.itemLevel.average - a.itemLevel.average
     );
@@ -342,6 +352,7 @@ const refreshData = async () => {
       }
 
       const fetchedData = await response.json();
+      // console.log(fetchData)
       responseText.value = `${fetchedData.message} - ${formatarHoraAtual()}`;
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
@@ -639,6 +650,15 @@ onMounted(async () => {
   font-style: italic;
 }
 
+.response-text {
+  position: absolute;
+  top: 4px;
+  left: 270px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #0070de;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
 
@@ -798,12 +818,5 @@ onMounted(async () => {
   cursor: not-allowed;
 }
 
-.response-text {
-  position: absolute;
-  top: 4px;
-  left: 270px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #0070de;
-}
+
 </style>
