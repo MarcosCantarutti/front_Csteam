@@ -351,7 +351,7 @@ const fetchData = async () => {
     }
 
     const fetchedData = await response.json();
-    console.log(fetchedData)
+    // console.log(fetchedData)
     data.value = fetchedData.sort(
       (a, b) => b.itemLevel.average - a.itemLevel.average
     );
@@ -385,7 +385,7 @@ const refreshData = async () => {
 
       const fetchedData = await response.json();
       textLoading.value = 'Buscando itens bi do bi...';
-      console.log(fetchData)
+      // console.log(fetchData)
       responseText.value = `${fetchedData.message} - ${formatarHoraAtual()}`;
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
