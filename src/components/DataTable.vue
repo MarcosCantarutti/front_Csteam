@@ -7,11 +7,11 @@
     </div>
 
     <div v-else class="data-table">
-      <button @click="toggleDarkMode" class="dark-mode-toggle">
+      <button @click="() => toggleDarkMode()" class="dark-mode-toggle">
         {{ isDarkMode ? 'Light Mode' : 'Dark Mode' }}
       </button>
       <button
-        @click="refreshData"
+        @click="() => refreshData()"
         :disabled="isRefreshing"
         class="refresh-button"
       >
@@ -75,7 +75,7 @@
               <button
               class="btn"
                 v-if="item.tierSet.length"
-                @click="toggleTierDetails(index)"
+                @click="() => toggleTierDetails(index)"
               >
                 {{
                   expandedTierIndex === index
@@ -107,7 +107,7 @@
               <button
               class="btn"
                 v-if="item.enchantedItems.length"
-                @click="toggleDetails(index)"
+                @click="() => toggleDetailsEnchanting(index)"
               >
                 {{
                   expandedIndex === index
@@ -152,7 +152,7 @@
               <button
               class="btn"
                 v-if="item.embellishedItems.length"
-                @click="toggleEmbellishedDetails(index)"
+                @click="() => toggleEmbellishedDetails(index)"
               >
                 {{
                   expandedEmbellishedIndex === index
@@ -209,7 +209,7 @@
               <button
               class="btn"
                 v-if="item.sockets.length"
-                @click="toggleSocketsDetails(index)"
+                @click="() => toggleSocketsDetails(index)"
               >
                 {{
                   expandedSocketsIndex === index
@@ -279,6 +279,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import axios from 'axios';
 
 const slotNames = {
   CHEST: 'Chest',
@@ -334,28 +335,22 @@ const saveDarkModePreference = () => {
 };
 
 const fetchData = async () => {
-  loading.value = true; 
+  loading.value = true;
   try {
-    // https://api-node-csteam.onrender.com/dados
-    // http://localhost:3000/dados
-    const response = await fetch('https://api-node-csteam.onrender.com/dados', {
-      method: 'GET',
+    // Substitua pela URL correta da API
+    const response = await axios.get('https://api-node-csteam.onrender.com/dados', {
       headers: {
         'Content-Type': 'application/json',
       },
-      mode: 'cors',
     });
 
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status}`);
-    }
+    const fetchedData = response.data;
 
-    const fetchedData = await response.json();
-    // console.log(fetchedData)
     data.value = fetchedData.sort(
       (a, b) => b.itemLevel.average - a.itemLevel.average
     );
-    totalPlayers.value = data.value.length
+    totalPlayers.value = data.value.length;
+    
   } catch (error) {
     console.error('Erro ao buscar dados:', error);
   } finally {
@@ -369,24 +364,17 @@ const refreshData = async () => {
     loading.value = true; // Exibe a tela de carregamento
 
     try {
-      // https://api-node-csteam.onrender.com/
-      // http://localhost:3000/
-      const response = await fetch('https://api-node-csteam.onrender.com/', {
-        method: 'GET',
+
+      const response = await axios.get('https://api-node-csteam.onrender.com/', {
         headers: {
           'Content-Type': 'application/json',
         },
-        mode: 'cors',
       });
 
-      if (!response.ok) {
-        throw new Error(`Erro HTTP: ${response.status}`);
-      }
-
-      const fetchedData = await response.json();
+      const fetchedData = response.data;
       textLoading.value = 'Buscando itens bi do bi...';
-      // console.log(fetchData)
       responseText.value = `${fetchedData.message} - ${formatarHoraAtual()}`;
+
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
     } finally {
@@ -398,9 +386,10 @@ const refreshData = async () => {
   }
 };
 
+
 const sortedData = computed(() => data.value);
 
-const toggleDetails = (index) => {
+const toggleDetailsEnchanting = (index) => {
   expandedIndex.value = expandedIndex.value === index ? null : index;
 };
 
