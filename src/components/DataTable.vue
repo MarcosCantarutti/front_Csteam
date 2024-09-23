@@ -245,8 +245,8 @@
               </div>
             </td>
             <td>
-              <div v-if="item.mythicDungeons.length">
-                <b>This week: {{ item.mythicDungeons.length }}</b>
+              <div v-if="item.mythicDungeonsDoneThisWeek">
+                <b>This week: {{ item.mythicDungeonsDoneThisWeek }}</b>
               </div>
               <div v-else>
                 <b>This week: 0</b>
