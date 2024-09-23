@@ -36,10 +36,6 @@
           <tr
             v-for="(item, index) in sortedData"
             :key="index"
-            :class="{
-              'highlight-green': index < 5,
-              'highlight-red': index >= sortedData.length - 5,
-            }"
           >
             <td>
               <b>{{ item.name }}</b>
