@@ -320,7 +320,7 @@ const totalItensEnchant = ref(0);
 const itensEmbelish = ref(0);
 const totalItensEmbelish = ref(0);
 
-const textLoading = ref('Atualizando dados...');
+const textLoading = ref('Buscando dados...');
 
 const loadDarkModePreference = () => {
   const darkMode = localStorage.getItem('darkMode');
@@ -361,7 +361,7 @@ const refreshData = async () => {
   if (confirm('Deseja atualizar os dados da planilha?')) {
     isRefreshing.value = true; // Desabilita o botão de refresh
     loading.value = true; // Exibe a tela de carregamento
-
+    textLoading.value = 'Atualizando dados...'
     try {
 
       const response = await axios.get('https://api-node-csteam.onrender.com/', {
