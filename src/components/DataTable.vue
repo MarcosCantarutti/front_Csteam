@@ -247,6 +247,9 @@
               <div v-else>
                 <b>This week: 0</b>
               </div>
+              <div v-if="item.mythicDungeonsDoneAlltime">
+                <b>All time: {{ item.mythicDungeonsDoneAlltime }}</b>
+              </div>
               <div v-if="item.mythicPlusRating.length">
                 <b>Score: {{ Math.round(item.mythicPlusRating[0])  }}</b>
               </div>
