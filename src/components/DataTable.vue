@@ -18,17 +18,23 @@
         Refresh
       </button>
       <span class="response-text">{{ responseText }}</span>
+      <input
+              type="text"
+              v-model="nameFilter"
+              placeholder="Filtrar por nome"
+              @input="filterData"
+            />
       <table>
         <thead>
           <tr>
-            <th>Name  ({{totalPlayers}})</th>
-            <th>Class</th>
-            <th>Item lvl Equip/Avg  ({{mediaEquip}}/{{ mediaAvg }})</th>
+            <th @click="sortByName">Name  ({{totalPlayers}})</th>
+            <th @click="sortByClass">Class</th>
+            <th @click="sortByItem">Item lvl Equip/Avg  ({{mediaEquip}}/{{ mediaAvg }})</th>
             <th>Tier Set </th>
             <th>Enchants ({{itensEnchant}}/{{ totalItensEnchant }})</th>
             <th>Embellish. ({{itensEmbelish}}/{{ totalItensEmbelish }})</th>
             <th>Sockets</th>
-            <th>Mythic+</th>
+            <th @click="sortByScore">Mythic+</th>
             <th>Raid</th>
           </tr>
         </thead>
@@ -323,6 +329,15 @@ const totalItensEmbelish = ref(0);
 
 const textLoading = ref('Buscando dados...');
 
+//ordenação
+const isSortAscendingName    = ref(false);
+const isSortAscendingClass   = ref(false);
+const isSortAscendingItemLvl = ref(false);
+const isSortAscendingScore   = ref(false);
+const originalData           = ref([])
+const filteredData           = ref([])
+const nameFilter             = ref('');
+
 const loadDarkModePreference = () => {
   const darkMode = localStorage.getItem('darkMode');
   if (darkMode) {
@@ -480,12 +495,69 @@ const calcItensEmbelish = () => {
   totalItensEmbelish.value = totalItens;
 };
 
+const sortByName = () =>  {
+  isSortAscendingName.value = !isSortAscendingName.value;
+  data.value.sort((a, b) => {
+        return isSortAscendingName.value
+          ? a.name.localeCompare(b.name) // Ordem crescente
+          : b.name.localeCompare(a.name); // Ordem decrescente
+      });
+}
+
+const sortByClass = () =>  {
+  isSortAscendingClass.value = !isSortAscendingClass.value;
+  data.value.sort((a, b) => {
+        return isSortAscendingClass.value
+          ? a.class.localeCompare(b.class) // Ordem crescente
+          : b.class.localeCompare(a.class); // Ordem decrescente
+      });
+}
+
+const sortByItem = () =>  {
+  isSortAscendingItemLvl.value = !isSortAscendingItemLvl.value;
+  data.value.sort((a, b) => {
+        return isSortAscendingItemLvl.value
+        ?  b.itemLevel.average - a.itemLevel.average// Ordem crescente
+        :  a.itemLevel.average - b.itemLevel.average // Ordem decrescente
+      });
+}
+
+const sortByScore = () =>  {
+  isSortAscendingScore.value = !isSortAscendingScore.value;
+  data.value.sort((a, b) => {
+        return isSortAscendingScore.value
+        ?  b.mythicPlusRating[0] - a.mythicPlusRating[0]// Ordem crescente
+        :  a.mythicPlusRating[0] - b.mythicPlusRating[0] // Ordem decrescente
+      });
+}
+
+const filterData = () => {
+
+  const searchTerm = nameFilter.value.toLowerCase();
+  data.value = originalData.value;
+
+  if (searchTerm) {
+    // Filtra os dados com base no input
+    filteredData.value = data.value.filter(item => 
+      item.name.toLowerCase().includes(searchTerm)
+    );
+  } else {
+    // Se o input estiver vazio, restaura os dados originais
+    return data.value = originalData.value;
+  }
+
+  data.value = filteredData.value;
+  
+}
+
+
 onMounted(async () => {
   loadDarkModePreference();
   await fetchData();
   calcMediaEquip();
   calcItensEnchant();
   calcItensEmbelish();
+  originalData.value = data.value
 });
 </script>
 
