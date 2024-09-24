@@ -279,6 +279,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { supabase } from '../supabaseCliente.js'; 
 
 const slotNames = {
   CHEST: 'Chest',
@@ -336,16 +337,21 @@ const saveDarkModePreference = () => {
 const fetchData = async () => {
   loading.value = true;
   try {
-    // Substitua pela URL correta da API
-    const response = await axios.get('https://api-node-csteam.onrender.com/dados', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    // const response = await axios.get('https://api-node-csteam.onrender.com/dados', {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //   });
 
-    const fetchedData = response.data;
+    //   const fetchedData = response.data;
 
-    data.value = fetchedData.sort(
+    const { data: playersData, error } = await supabase
+      .from('PLAYERS_JSON')
+      .select('player_data');
+
+    let JsonPlayersData = playersData.map(item => item.player_data);
+
+    data.value = JsonPlayersData.sort(
       (a, b) => b.itemLevel.average - a.itemLevel.average
     );
     totalPlayers.value = data.value.length;
